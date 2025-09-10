@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker-compose build:*)",
+      "WebSearch",
+      "WebFetch(domain:platform.openai.com)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

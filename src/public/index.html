@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Agent - Consultas SAKILA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 SQL Agent</h1>
+            <p>Interfaz para consultas a la base de datos SAKILA</p>
+            <div id="status" class="status-indicator">
+                <span id="status-text">Verificando conexión...</span>
+            </div>
+        </header>
+
+        <main>
+            <!-- Sección de Lenguaje Natural -->
+            <section class="query-section">
+                <h2>🗣️ Consulta en Lenguaje Natural</h2>
+                <div class="query-container">
+                    <textarea 
+                        id="naturalQuery" 
+                        placeholder="Ejemplo: los 5 clientes que más han gastado"
+                        rows="3"
+                    ></textarea>
+                    <div class="query-actions">
+                        <button id="translateBtn" class="btn-primary">
+                            🤖 Traducir a SQL
+                        </button>
+                        <button id="clearAllBtn" class="btn-secondary">
+                            🗑️ Limpiar Todo
+                        </button>
+                        <button id="tablesBtn" class="btn-info">
+                            📋 Ver Tablas
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de SQL con panel lateral -->
+            <section class="query-section">
+                <h2>📝 Consulta SQL</h2>
+                <div class="sql-container">
+                    <div class="sql-main">
+                        <textarea 
+                            id="sqlQuery" 
+                            placeholder="El SQL generado aparecerá aquí, o escriba su propia consulta SQL..."
+                            rows="5"
+                        ></textarea>
+                        <div class="sql-info-container">
+                            <span id="modelInfo" class="model-info hidden"></span>
+                        </div>
+                        <div class="query-actions">
+                            <button id="executeBtn" class="btn-success">
+                                🚀 Ejecutar SQL
+                            </button>
+                            <button id="clearSqlBtn" class="btn-secondary">
+                                🗑️ Limpiar SQL
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Panel lateral de información -->
+                    <div id="sqlInfoPanel" class="sql-info-panel hidden">
+                        <div class="info-section">
+                            <h4>💡 Explicación</h4>
+                            <p id="explanationText">-</p>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4>⚡ Consideraciones</h4>
+                            <p id="considerationsText">-</p>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4>🔄 Alternativas</h4>
+                            <p id="alternativesText">-</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="results-section">
+                <h2>Resultados</h2>
+                <div id="loading" class="loading hidden">
+                    <div class="spinner"></div>
+                    <span>Ejecutando consulta...</span>
+                </div>
+                <div id="error" class="error-message hidden"></div>
+                <div id="results" class="results-container"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p>🐍 Preparado para servicios Python en puerto 5000</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

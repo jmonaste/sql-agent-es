@@ -1,0 +1,1 @@
+console.log('SQL Agent application - use npm start to run the server');
