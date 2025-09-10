@@ -1,7 +1,7 @@
 models:
   llm:
-    model: ${DOCKER_RUNNER_MODEL:-ai/smollm2:latest}
-    context_size: 1024
+    model: ${DOCKER_RUNNER_MODEL:-ai/gpt-oss:latest}
+    context_size: 4000
 
 services:
   mysql:
@@ -42,10 +42,10 @@ services:
       - "5000:5000"
     environment:
       - LLM_PROVIDER=${LLM_PROVIDER:-openai}
-      - OPENAI_API_KEY=
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
       - DOCKER_RUNNER_BASE_URL=http://host.docker.internal:12434/engines/llama.cpp/v1/
-      - DOCKER_RUNNER_MODEL=${DOCKER_RUNNER_MODEL:-ai/smollm2:latest}
+      - DOCKER_RUNNER_MODEL=${DOCKER_RUNNER_MODEL:-ai/gpt-oss:latest}
       - PORT=5000
       - DEBUG=true
     models:

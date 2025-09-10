@@ -61,6 +61,9 @@ Responde SOLO con la consulta SQL, sin explicaciones adicionales.
                     "success": True,
                     "sql_query": sql_query,
                     "natural_query": natural_language_query,
+                    "explanation": result.get("explanation", ""),
+                    "considerations": result.get("considerations", ""),
+                    "alternatives": result.get("alternatives", ""),
                     "llm_info": {
                         "provider": result["provider"],
                         "model": result["model"]

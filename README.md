@@ -51,23 +51,51 @@ const connection = mysql.createConnection({
 
 El sistema incluye un backend Python que convierte consultas en lenguaje natural a SQL usando OpenAI API o Docker Model Runner.
 
+### Configuración
+
+1. **Configura el archivo .env**:
+   ```bash
+   # Copia el archivo de ejemplo y edítalo con tu API key
+   cp .env.example .env
+   # Edita .env y coloca tu OPENAI_API_KEY real
+   ```
+
+2. **Variables de entorno en .env**:
+   ```bash
+   # Para usar OpenAI
+   LLM_PROVIDER=openai
+   OPENAI_API_KEY=tu_api_key_aqui
+   OPENAI_MODEL=gpt-4
+
+   # Para usar modelo local
+   LLM_PROVIDER=docker_runner
+   DOCKER_RUNNER_MODEL=ai/smollm2:latest
+   ```
+
 ### Opciones de ejecución:
 
-#### Con OpenAI API:
+#### Con OpenAI API (recomendado):
 ```bash
-# Configurar .env con OPENAI_API_KEY
-docker-compose up python-backend
+# Asegúrate de tener configurado OPENAI_API_KEY en .env
+docker-compose up -d
 ```
 
-#### Con Docker Model Runner:
+#### Con Docker Model Runner (modelo local):
 ```bash
-# Habilitar Docker Model Runner en Docker Desktop
-docker-compose --profile with-llm up
+# Habilitar Docker Model Runner en Docker Desktop primero
+# Cambiar LLM_PROVIDER=docker_runner en .env
+docker-compose --profile with-llm up -d
 ```
 
-#### Sistema completo:
+#### Sistema completo con modelo local:
 ```bash
-docker-compose --profile full up
+docker-compose --profile full up -d
 ```
+
+### Puertos
+
+- **Frontend**: http://localhost:8080
+- **Backend Python**: http://localhost:5000
+- **Base de datos**: localhost:3307
 
 El frontend ya está preparado con `callPythonService()` en puerto 5000 para conectarse automáticamente al backend Python.

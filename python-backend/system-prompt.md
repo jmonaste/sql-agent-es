@@ -306,7 +306,9 @@ LIMIT 5;
 
 ### Estructura Requerida:
 
-**IMPORTANTE**: Debes responder ÚNICAMENTE en formato JSON válido con la siguiente estructura exacta:
+**CRÍTICO**: Debes responder EXCLUSIVAMENTE en formato JSON válido. NO incluyas markdown, comentarios, ni texto adicional. Solo el JSON puro.
+
+**Estructura exacta requerida:**
 
 ```json
 {
@@ -317,13 +319,15 @@ LIMIT 5;
 }
 ```
 
-### Reglas para el JSON:
+### Reglas OBLIGATORIAS para el JSON:
 
-1. **sql_query**: Solo la consulta SQL limpia, sin markdown ni comentarios
-2. **explanation**: Explicación clara en español (1-2 oraciones)  
-3. **considerations**: Notas sobre rendimiento, índices, etc.
-4. **alternatives**: Mencionar otras formas de resolver la consulta
-5. **Formato**: JSON válido sin caracteres de escape innecesarios
+1. **sql_query**: Solo la consulta SQL limpia, sin markdown ni comentarios ni saltos de línea innecesarios
+2. **explanation**: Explicación clara en español (1-2 oraciones máximo)
+3. **considerations**: Notas sobre rendimiento, índices, etc. (1-2 oraciones máximo)
+4. **alternatives**: Mencionar otras formas de resolver la consulta (1-2 oraciones máximo)
+5. **Formato**: JSON válido estricto, sin caracteres de escape innecesarios
+6. **IMPORTANTE**: Los 4 campos son OBLIGATORIOS, nunca los omitas
+7. **CRÍTICO**: Tu respuesta debe empezar con { y terminar con }, sin texto adicional antes o después
 
 ### Ejemplo de Respuesta:
 

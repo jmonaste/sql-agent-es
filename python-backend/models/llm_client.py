@@ -2,6 +2,7 @@ from openai import OpenAI
 from typing import Dict, Any
 import logging
 import json
+import re
 from config import config
 
 logger = logging.getLogger(__name__)
@@ -99,21 +100,25 @@ class LLMClient:
                 
             else:
                 # Fallback para modelos que no soportan structured outputs
+                # Forzar formato JSON para modelos locales
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
                     temperature=0.1,
-                    max_tokens=1500
+                    max_tokens=1500,
+                    response_format={"type": "json_object"} if config.LLM_PROVIDER == "docker_runner" else None
                 )
                 
                 content = response.choices[0].message.content.strip()
+                logger.info(f"Raw response from {config.LLM_PROVIDER}: {content[:200]}...")
                 
-                # Intentar parsear como JSON, si falla retornar como texto
-                try:
-                    sql_data = json.loads(content)
+                # Usar parsing robusto
+                sql_data = self._robust_json_parse(content)
+                
+                if sql_data:
                     return {
                         "success": True,
-                        "sql_query": sql_data.get("sql_query", content),
+                        "sql_query": sql_data.get("sql_query", ""),
                         "explanation": sql_data.get("explanation", ""),
                         "considerations": sql_data.get("considerations", ""),
                         "alternatives": sql_data.get("alternatives", ""),
@@ -121,8 +126,9 @@ class LLMClient:
                         "provider": config.LLM_PROVIDER,
                         "structured": False
                     }
-                except json.JSONDecodeError:
-                    # Si no es JSON válido, retornar como antes
+                else:
+                    # Último recurso: retornar como antes pero con logging
+                    logger.error(f"Failed to parse JSON from {config.LLM_PROVIDER}: {content}")
                     return {
                         "success": True,
                         "sql_query": content,
@@ -142,6 +148,76 @@ class LLMClient:
                 "model": self.model,
                 "provider": config.LLM_PROVIDER
             }
+    
+    def _robust_json_parse(self, content: str) -> Dict[str, str]:
+        """Parse JSON with multiple fallback strategies"""
+        if not content:
+            return None
+            
+        # Strategy 1: Direct JSON parsing
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            pass
+            
+        # Strategy 2: Clean and try again
+        try:
+            # Remove markdown code blocks if present
+            cleaned = re.sub(r'```(?:json)?\s*', '', content)
+            cleaned = re.sub(r'```\s*$', '', cleaned)
+            
+            # Remove leading/trailing whitespace and newlines
+            cleaned = cleaned.strip()
+            
+            return json.loads(cleaned)
+        except json.JSONDecodeError:
+            pass
+            
+        # Strategy 3: Extract JSON from text using regex
+        try:
+            # Find JSON object in the text
+            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', content, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+                return json.loads(json_str)
+        except (json.JSONDecodeError, AttributeError):
+            pass
+            
+        # Strategy 4: Try to extract individual fields if JSON structure is broken
+        try:
+            result = {}
+            
+            # Extract sql_query
+            sql_match = re.search(r'["\']sql_query["\']\s*:\s*["\']([^"\']*)["\'"]', content, re.DOTALL)
+            if sql_match:
+                result["sql_query"] = sql_match.group(1)
+                
+            # Extract explanation
+            exp_match = re.search(r'["\']explanation["\']\s*:\s*["\']([^"\']*)["\'"]', content, re.DOTALL)
+            if exp_match:
+                result["explanation"] = exp_match.group(1)
+                
+            # Extract considerations
+            con_match = re.search(r'["\']considerations["\']\s*:\s*["\']([^"\']*)["\'"]', content, re.DOTALL)
+            if con_match:
+                result["considerations"] = con_match.group(1)
+                
+            # Extract alternatives
+            alt_match = re.search(r'["\']alternatives["\']\s*:\s*["\']([^"\']*)["\'"]', content, re.DOTALL)
+            if alt_match:
+                result["alternatives"] = alt_match.group(1)
+                
+            # Return if we got at least sql_query
+            if "sql_query" in result and result["sql_query"]:
+                logger.warning(f"Used regex fallback parsing for {config.LLM_PROVIDER}")
+                return result
+                
+        except Exception as e:
+            logger.error(f"Regex parsing failed: {e}")
+            
+        # All strategies failed
+        logger.error(f"All JSON parsing strategies failed for content: {content[:500]}...")
+        return None
     
     def test_connection(self) -> Dict[str, Any]:
         """Test LLM client connection - full test"""
